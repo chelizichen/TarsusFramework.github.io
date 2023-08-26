@@ -8,9 +8,11 @@ body {
 
 header {
     background-color: #f4f7f9;
-    text-align: right;
     padding: 1em 2em;
     box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
 }
 
 nav ul {

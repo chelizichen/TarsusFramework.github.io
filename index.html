@@ -11,6 +11,13 @@
 
 <body>
     <header>
+        <div style="text-align: left;      font-size: 38px;
+        font-weight: 500;
+        font-style: oblique;
+        font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+        color: #045bcc;
+        letter-spacing: 2px;
+        margin: 0 10px;">TarsusFramework</div>
         <nav>
             <ul>
                 <li><a href="#">Home</a></li>
@@ -24,20 +31,20 @@
     <main>
         <h1>TarsusFramework - Next NodeJS FrameWork</h1>
         <p>This is a http and microservice framework using TypeScript Decorator(state3).</p>
-        <button class="alertButton">Click Me!</button>
+        <button class="alertButton" onclick="toLean()">Know More About This FrameWork!</button>
         <div style="display: flex;padding: 0 30vh;margin: 40px 0;">
             <div class="card" style="flex: 1;margin: 0 20px;height: 20vh;padding: 1vh 0 ;">
                 <div class="card-body">
                   <h5 class="card-title" style="height: 3vh;">Use TypeScript</h5>
                   <p class="card-text" style="height: 5vh;text-align: justify;text-indent: 20px;font-size: 14px;">The TarsusFramework use TypeScript as the basic building language, and it also supports JavaScript.</p>
-                  <button href="#" style="padding: 5px 10px;margin-top: 5px;" >Learn</button>
+                  <button onclick="toLean()" style="padding: 5px 10px;margin-top: 5px;" class="learn" >Learn</button>
                 </div>
             </div>
             <div class="card" style="flex: 1;margin: 0 20px;height: 20vh;padding: 1vh 0 ;">
                 <div class="card-body">
                   <h5 class="card-title" style="height: 3vh;">Support Http And MircoService</h5>
                   <p class="card-text" style="height: 5vh;text-align: justify;text-indent: 20px;font-size: 14px;">This framework not only provides support for http services, but also supports microservices. </p>
-                  <button href="#" style="padding: 5px 10px;margin-top: 5px;" >Learn</button>
+                  <button onclick="toLean()" style="padding: 5px 10px;margin-top: 5px;" class="learn" >Learn</button>
                 </div>
             </div>
         </div>
@@ -46,14 +53,14 @@
                 <div class="card-body">
                   <h5 class="card-title" style="height: 3vh;"> Multiple Languages Available </h5>
                   <p class="card-text" style="height: 5vh;text-align: justify;text-indent: 20px;font-size: 14px;">This framework provides a structure called. taro, which follows the protocol provided by the framework and can be compiled into. ts and. java files.</p>
-                  <button href="#" style="padding: 5px 10px;margin-top: 5px;" >Learn</button>
+                  <button onclick="toLean()" style="padding: 5px 10px;margin-top: 5px;" class="learn" >Learn</button>
                 </div>
             </div>
             <div class="card" style="flex: 1;margin: 0 20px;height: 20vh;padding: 1vh 0 ;">
                 <div class="card-body">
                   <h5 class="card-title" style="height: 3vh;">Faster Stringify </h5>
                   <p class="card-text" style="height: 5vh;text-align: justify;text-indent: 20px;font-size: 14px;">We compile .taro into a JSON schema during compilation and efficiently serialize the returned values before returning them to the gateway (using fast-json-stringify).</p>
-                  <button href="#" style="padding: 5px 10px;margin-top: 5px;" >Learn</button>
+                  <button onclick="toLean()" style="padding: 5px 10px;margin-top: 5px;" class="learn" >Learn</button>
                 </div>
             </div>
         </div>
@@ -63,7 +70,11 @@
         <p>© 2023 TarsusFramework - leekus</p>
         <p>Sponsors : Jetbrains (Use Webstorm to Development)</p>
     </footer>
-
+    <script>
+        function toLean(){
+            window.location.href = "./page/html/docs.html"
+        }
+    </script>
 </body>
 
 </html>
