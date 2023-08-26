@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tarsus-Document</title>
+    <link rel="stylesheet" href="../css/index.css">
+    <link rel="stylesheet" href="../css/docs.css">
+    <link href="https://cdn.bootcdn.net/ajax/libs/twitter-bootstrap/5.2.3/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/gh/google/code-prettify@master/loader/run_prettify.js"></script>
+</head>
+
+<body>
+    <header>
+        <div style="text-align: left;      font-size: 38px;
+        font-weight: 500;
+        font-style: oblique;
+        font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+        color: #045bcc;
+        letter-spacing: 2px;
+        margin: 0 10px;">TarsusFramework</div>
+        <nav>
+            <ul>
+                <li><a href="../../index.html">Home</a></li>
+                <li><a href="./docs.html">Docs</a></li>
+                <li><a href="#">Theory</a></li>
+                <li><a href="#">Contact</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main style="margin: 0;padding: 0;">
+        <div class="doc-container" style="margin: 0;padding: 0;">
+            <aside class="api-menu">
+                <h2 style="color: #2c8c99;">Theory</h2>
+                <ul>
+                    <li><a href="#http-design" style="font-size: 24px;">Http</a></li>
+                </ul>
+            </aside>
+            <section class="api-details" style="overflow: scroll;height: 100vh;">
+                <article id="http-design">
+                    <h2>START-HTTP-SERVER</h2>
+                    <p><code>Http-Design</code></p>
+                    <p><code>import {TarsusHttpApplication,LoadController,LoadInit,LoadServer,LoadStruct,LoadTaro} from 'tarsus/core/httpservice'</code></p>
+                    <p>
+                        Internally, I use the EventEmitter that comes with NodeJS as the event center, where these Load functions will register corresponding methods,
+                        Finally, execute the LoadServer function, which internally triggers (emits) these registered methods one by one. Finally, listen to the port.
+                    </p>
+                    <!-- <p>
+                        在内部我采用 NodeJS 自带的 EventEmitter 作为事件中心,这些Load函数将会在该事件中心中分别注册对应的方法，
+                        最后执行 LoadServer函数，该函数内部会一一 触发（emit）这些注册的方法。最后监听端口。
+                    </p> -->
+                    <p><code>Scource Code</code></p>
+                    <pre class="prettyprint lang-typescript" style="padding: 20px;">
+                        <code>
+enum Emits {
+    INIT = "init",
+    START = "start",
+    TARO = "taro",
+    STRUCT = "struct"
+}
+
+function LoadTaro(url?: string) {
+    load_web_app.events.on(Emits.TARO, function () {
+        const taro_path = url || "src/taro";
+        const full_path = path.resolve(cwd(), taro_path);
+        const dirs = readdirSync(full_path);
+        dirs.forEach((interFace) => {
+            let taro_path = path.resolve(full_path, interFace);
+            // 将会存储到 TarsusStream 的 Map 里
+            stream_proxy.SetStream(taro_path);
+        });
+    })
+}
+
+function LoadStruct(url?: string) {
+    load_web_app.events.on(Emits.STRUCT, function () {
+        const struct_path = url || "src/struct";
+        const full_path = path.resolve(cwd(), struct_path);
+        const dirs = readdirSync(full_path);
+        dirs.forEach((interFace) => {
+            let interFace_path = path.resolve(full_path, interFace);
+            const singalClazz = require(interFace_path);
+            for (let v in singalClazz) {
+                stream_proxy.TarsusStream.define_struct(singalClazz[v]);
+            }
+        });
+    })
+}
+
+
+const load_web_app: loadWebApp = {
+    app: void "express signal instance",
+    router: express.Router(),
+    global_pipe: void "express global pipe",
+    before_listen: void "use callback function before listen",
+    events: new EventEmitter(),
+    http_config: void "http config for web application",
+    init: function () {
+        load_web_app.app = express();
+        const app = load_web_app.app;
+        app.use(express.json())
+        app.set('view engine', 'html');
+        load_web_app.events.on(Emits.START, function () {
+            console.log("before start", load_web_app.http_config)
+            load_web_app.app.listen(load_web_app.http_config.port, function () {
+                console.log(`server is started at localhost:${load_web_app.http_config.port}`)
+            })
+        })
+        load_web_app.events.on(Emits.INIT, async function (config: initConfig) {
+            load_config.init();
+            const get_config = load_config.get_config;
+            await load_data.init(get_config(config_enum.database))
+            // create a express instance
+
+
+            // we can load microservice when we start a web or gateway application
+            if (config.load_ms) {
+                const servant = get_config(config_enum.servant);
+                console.log("***************开启网关*******************")
+                load_web_app.load_servant(servant)
+            }
+
+            load_web_app.load_global_pipe();
+            load_web_app.load_router();
+
+            const http_config: parseToObj = ServantUtil.parse(get_config(config_enum.project));
+            load_web_app.http_config = http_config;
+
+            load_web_app.before_listen(app);
+
+            load_web_app.events.emit(Emits.START)
+
+            load_web_app.events.emit(Emits.TARO)
+            load_web_app.events.emit(Emits.STRUCT)
+
+        })
+    },
+    load_servant: function (servant: string[]) {
+        const servant_array: parseToObj[] = servant.map(item => ServantUtil.parse(item));
+        const get_servant_group = {}
+        for (let i = 0; i < servant_array.length; i++) {
+            let item = servant_array[i]
+            let server_name = item.serverProject
+            if (!get_servant_group[server_name]) {
+                get_servant_group[server_name] = []
+            }
+            get_servant_group[server_name].push(item)
+        }
+
+        for (let i in get_servant_group) {
+            const servants = get_servant_group[i]
+            const load_balance = new Load_Balance(servants, i);
+            load_proto.set_servant(i, load_balance)
+        }
+        console.log('parse_server', get_servant_group)
+        console.log("***************开启网关*******************")
+
+    },
+
+    load_global_pipe: function () {
+        // load global pipe
+        if (!load_web_app.global_pipe) {
+            return
+        }
+        load_web_app.global_pipe.forEach((Pipe) => {
+            let pipe = new Pipe();
+            load_web_app.app.use("*", (...args: any[]) => pipe.next(args));
+        });
+    },
+
+    load_router: function () {
+        load_web_app.app.use(load_web_app.router);
+    },
+}
+
+function LoadGlobalPipe(...args: any[]) {
+    load_web_app.global_pipe = args;
+}
+
+function LoadController(controllers: any) {
+    if (controllers.length) {
+        for (let i = 0; i < controllers.length; i++) {
+            // console.log(controllers)
+            let controller = controllers[i]
+            const controller_inst = new controller();
+            console.log(controller_inst.interFace, "is loading success")
+        }
+    }
+}
+
+function LoadInit(callBack?: (app: express.Express) => void) {
+    // set init before listening port
+    function voidCallBack() {
+    }
+
+    load_web_app.before_listen = callBack || voidCallBack;
+}
+
+function LoadServer(config: initConfig) {
+    load_web_app.events.emit(Emits.INIT, config);
+}
+                    </code></pre>
+                </article>
+            </section>
+        </div>
+    </main>
+
+    <footer>
+        <p>© 2023 TarsusFramework - leekus</p>
+        <p>Sponsors : Jetbrains (Use Webstorm to Development)</p>
+    </footer>
+
+</body>
+
+</html>
